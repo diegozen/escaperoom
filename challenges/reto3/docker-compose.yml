@@ -7,7 +7,7 @@ services:
     environment:
       - SSH_USER=jugador
       - SSH_PASS=password123
-      - FLAG=pr1v3sc_secret
+      - FLAG=privesc_secret
     cap_add:
       - NET_ADMIN
     networks:

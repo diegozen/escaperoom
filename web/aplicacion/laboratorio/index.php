@@ -9,6 +9,22 @@ if (!isset($_SESSION["usuario"])) {
 
 $id_usuario = $_SESSION["usuario"];
 
+// Protección: requiere suscripción activa
+try {
+    $stmtSub = $conexion->prepare(
+        "SELECT suscrito FROM usuarios WHERE id_usuario = :id LIMIT 1"
+    );
+    $stmtSub->execute([":id" => $id_usuario]);
+    $sub = $stmtSub->fetch();
+
+    if (!$sub || !$sub["suscrito"]) {
+        header("Location: /escape-room/aplicacion/pagos/pago.php");
+        exit;
+    }
+} catch (PDOException $e) {
+    error_log("Error verificando suscripción: " . $e->getMessage());
+}
+
 // Obtener sesiones activas del usuario para saber qué retos tiene en curso
 try {
     $sql  = "SELECT challenge_id, status, ssh_host, ssh_port, ssh_user, ssh_pass, started_at
@@ -19,7 +35,7 @@ try {
     $stmt->execute([":id" => $id_usuario]);
     $sesiones = $stmt->fetchAll();
 
-    // Indexar por challenge_id para consulta rápida
+    // Indexar por challenge_id para consulta rápida (solo la más reciente de cada reto)
     $sesiones_idx = [];
     foreach ($sesiones as $s) {
         if (!isset($sesiones_idx[$s["challenge_id"]])) {
@@ -34,49 +50,49 @@ try {
 // Definición de los retos
 $retos = [
     [
-        "id"          => "reto1",
-        "titulo"      => "Reconocimiento de red",
-        "descripcion" => "Descubre los servicios activos en el sistema, analiza los puertos abiertos y encuentra el archivo oculto.",
-        "dificultad"  => "Básico",
-        "tiempo"      => "20 min",
-        "tipo"        => "individual",
-        "herramientas"=> "nmap, netcat, curl",
+        "id"           => "reto1",
+        "titulo"       => "Reconocimiento de red",
+        "descripcion"  => "Descubre los servicios activos en el sistema, analiza los puertos abiertos y encuentra el archivo oculto.",
+        "dificultad"   => "Básico",
+        "tiempo"       => "20 min",
+        "tipo"         => "individual",
+        "herramientas" => "nmap, netcat, curl",
     ],
     [
-        "id"          => "reto2",
-        "titulo"      => "Explotación web",
-        "descripcion" => "Explota una vulnerabilidad en el servicio web interno para extraer información sensible de la base de datos.",
-        "dificultad"  => "Intermedio",
-        "tiempo"      => "30 min",
-        "tipo"        => "individual",
-        "herramientas"=> "curl, sqlmap",
+        "id"           => "reto2",
+        "titulo"       => "Explotación web",
+        "descripcion"  => "Explota una vulnerabilidad en el servicio web interno para extraer información sensible de la base de datos.",
+        "dificultad"   => "Intermedio",
+        "tiempo"       => "30 min",
+        "tipo"         => "individual",
+        "herramientas" => "curl, sqlmap",
     ],
     [
-        "id"          => "reto3",
-        "titulo"      => "Escalada de privilegios",
-        "descripcion" => "Accedes como usuario sin privilegios. Encuentra el vector de escalada y obtén acceso root al sistema.",
-        "dificultad"  => "Intermedio",
-        "tiempo"      => "25 min",
-        "tipo"        => "individual",
-        "herramientas"=> "find, sudo, SUID",
+        "id"           => "reto3",
+        "titulo"       => "Escalada de privilegios",
+        "descripcion"  => "Accedes como usuario sin privilegios. Encuentra el vector de escalada y obtén acceso root al sistema.",
+        "dificultad"   => "Intermedio",
+        "tiempo"       => "25 min",
+        "tipo"         => "individual",
+        "herramientas" => "find, sudo, SUID",
     ],
     [
-        "id"          => "reto4",
-        "titulo"      => "Sniffing de tráfico",
-        "descripcion" => "Captura el tráfico de red interno del servidor y extrae las credenciales transmitidas en texto plano.",
-        "dificultad"  => "Intermedio",
-        "tiempo"      => "20 min",
-        "tipo"        => "individual",
-        "herramientas"=> "tcpdump, tshark",
+        "id"           => "reto4",
+        "titulo"       => "Sniffing de tráfico",
+        "descripcion"  => "Captura el tráfico de red interno del servidor y extrae las credenciales transmitidas en texto plano.",
+        "dificultad"   => "Intermedio",
+        "tiempo"       => "20 min",
+        "tipo"         => "individual",
+        "herramientas" => "tcpdump, tshark",
     ],
     [
-        "id"          => "reto5",
-        "titulo"      => "Ataque coordinado",
-        "descripcion" => "Reto grupal. Comprometéd la máquina objetivo trabajando en equipo: uno escanea, otro explota, otro escala.",
-        "dificultad"  => "Avanzado",
-        "tiempo"      => "45 min",
-        "tipo"        => "grupal",
-        "herramientas"=> "nmap, FTP, SSH, sudo",
+        "id"           => "reto5",
+        "titulo"       => "Ataque coordinado",
+        "descripcion"  => "Reto grupal. Comprometéd la máquina objetivo trabajando en equipo: uno escanea, otro explota, otro escala.",
+        "dificultad"   => "Avanzado",
+        "tiempo"       => "45 min",
+        "tipo"         => "grupal",
+        "herramientas" => "nmap, FTP, SSH, sudo",
     ],
 ];
 
@@ -114,9 +130,9 @@ $colores_dificultad = [
 
     <div class="retos-grid">
         <?php foreach ($retos as $reto):
-            $sesion   = $sesiones_idx[$reto["id"]] ?? null;
-            $activa   = $sesion && $sesion["status"] === "running";
-            $col_dif  = $colores_dificultad[$reto["dificultad"]] ?? "etiqueta-gris";
+            $sesion  = $sesiones_idx[$reto["id"]] ?? null;
+            $activa  = $sesion && $sesion["status"] === "running";
+            $col_dif = $colores_dificultad[$reto["dificultad"]] ?? "etiqueta-gris";
         ?>
         <div class="reto-card <?= $activa ? "reto-activo" : "" ?>">
 

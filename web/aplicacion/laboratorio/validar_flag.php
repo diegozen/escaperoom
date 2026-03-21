@@ -54,7 +54,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         if ($resultado && $resultado["success"] === true) {
             $exito = true;
 
-            // Actualizar estado en BD
+            // El orquestador ya marca la sesión como 'completed' y guarda elapsed_secs.
+            // Aquí solo sincronizamos por si hubiera desfase (doble seguridad).
             try {
                 $elapsed = $resultado["elapsed_seconds"] ?? null;
                 $sql  = "UPDATE sesiones_reto
@@ -66,27 +67,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                     ":id"        => $id_usuario,
                     ":challenge" => $challenge_id,
                 ]);
-
-                // Insertar en ranking si no existe
-                $sqlCheck = "SELECT 1 FROM ranking
-                             JOIN partidas ON ranking.id_partida = partidas.id_partida
-                             WHERE ranking.id_usuario = :id";
-                // Registro simplificado en ranking usando sesiones_reto
-                $sqlRank = "INSERT INTO ranking (id_usuario, id_partida, tiempo_total, estado)
-                            SELECT :id_usuario, p.id_partida, :tiempo, 'completada'
-                            FROM partidas p
-                            WHERE p.id_usuario = :id_usuario2
-                            ORDER BY p.fecha DESC
-                            LIMIT 1";
-                // Solo insertamos si hay partida asociada
-                $stmtRank = $conexion->prepare($sqlRank);
-                $stmtRank->execute([
-                    ":id_usuario"  => $id_usuario,
-                    ":tiempo"      => $elapsed ?? 0,
-                    ":id_usuario2" => $id_usuario,
-                ]);
             } catch (PDOException $e) {
-                error_log("Error actualizando estado flag: " . $e->getMessage());
+                error_log("Error sincronizando sesión completada: " . $e->getMessage());
             }
         } else {
             $errores[] = $resultado["message"] ?? "Flag incorrecta. Sigue intentándolo.";

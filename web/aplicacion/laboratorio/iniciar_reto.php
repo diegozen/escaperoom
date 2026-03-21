@@ -6,7 +6,7 @@ if (!isset($_SESSION["usuario"])) {
     exit;
 }
 
-$id_usuario  = $_SESSION["usuario"];
+$id_usuario   = $_SESSION["usuario"];
 $challenge_id = $_GET["reto"] ?? null;
 
 $retos_validos = ["reto1", "reto2", "reto3", "reto4", "reto5"];
@@ -26,7 +26,7 @@ $body = $es_grupal
     ? "{}"
     : json_encode(["user_id" => (string)$id_usuario, "challenge_id" => $challenge_id]);
 
-// Llamar al orquestador
+// Llamar al orquestador — él crea la sesión en BD
 $ch = curl_init($endpoint);
 curl_setopt_array($ch, [
     CURLOPT_RETURNTRANSFER => true,
@@ -47,51 +47,10 @@ if ($codigo !== 200 || !$respuesta) {
 
 $datos = json_decode($respuesta, true);
 
-// Guardar sesión en BD
-try {
-    if ($es_grupal) {
-        // Para el reto grupal guardamos una sesión por jugador
-        foreach ($datos["jugadores"] as $jugador => $creds) {
-            $sql  = "INSERT INTO sesiones_reto
-                        (id_usuario, challenge_id, ssh_host, ssh_port, ssh_user, ssh_pass, status)
-                     VALUES
-                        (:id_usuario, :challenge_id, :ssh_host, :ssh_port, :ssh_user, :ssh_pass, 'running')
-                     ON DUPLICATE KEY UPDATE
-                        ssh_port = VALUES(ssh_port),
-                        ssh_user = VALUES(ssh_user),
-                        ssh_pass = VALUES(ssh_pass),
-                        status   = 'running',
-                        started_at = NOW()";
-            $stmt = $conexion->prepare($sql);
-            $stmt->execute([
-                ":id_usuario"   => $id_usuario,
-                ":challenge_id" => $challenge_id,
-                ":ssh_host"     => $datos["host"] ?? "localhost",
-                ":ssh_port"     => $creds["ssh_port"],
-                ":ssh_user"     => $creds["ssh_user"],
-                ":ssh_pass"     => $creds["ssh_pass"],
-            ]);
-        }
-        // Redirigir con las credenciales del primer jugador disponible
-        $primera = array_values($datos["jugadores"])[0];
-        $_SESSION["reto5_creds"] = $datos["jugadores"];
-    } else {
-        $sql  = "INSERT INTO sesiones_reto
-                    (id_usuario, challenge_id, ssh_host, ssh_port, ssh_user, ssh_pass, status)
-                 VALUES
-                    (:id_usuario, :challenge_id, :ssh_host, :ssh_port, :ssh_user, :ssh_pass, 'running')";
-        $stmt = $conexion->prepare($sql);
-        $stmt->execute([
-            ":id_usuario"   => $id_usuario,
-            ":challenge_id" => $challenge_id,
-            ":ssh_host"     => $datos["host"] ?? "localhost",
-            ":ssh_port"     => $datos["port"],
-            ":ssh_user"     => $datos["user"],
-            ":ssh_pass"     => $datos["password"],
-        ]);
-    }
-} catch (PDOException $e) {
-    error_log("Error guardando sesión reto: " . $e->getMessage());
+// Para el reto5 guardamos las credenciales de cada jugador en sesión PHP
+// para que el administrador pueda distribuirlas (no se persiste en BD desde aquí)
+if ($es_grupal && isset($datos["jugadores"])) {
+    $_SESSION["reto5_creds"] = $datos["jugadores"];
 }
 
 header("Location: /escape-room/aplicacion/laboratorio/index.php?msg=Reto+iniciado+correctamente");

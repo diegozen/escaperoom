@@ -43,8 +43,8 @@ if (isset($_SESSION["usuario"])) {
                     <?= htmlspecialchars($usuarioLogueado["nombre"]) ?> &#9660;
                 </span>
                 <div class="submenu">
-                    <a href="/escape-room/aplicacion/partidas/historial.php">Mis partidas</a>
-                    <a href="/escape-room/aplicacion/usuarios/estadisticas.php">Estadísticas</a>
+                    <a href="/escape-room/aplicacion/laboratorio/historial.php">Mis partidas</a>
+                    <a href="/escape-room/aplicacion/ranking/ranking_personal.php">Estadísticas</a>
                     <a href="/escape-room/aplicacion/autenticacion/cerrar_sesion.php">Cerrar sesión</a>
                 </div>
             </div>

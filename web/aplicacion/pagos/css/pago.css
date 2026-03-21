@@ -1,0 +1,114 @@
+/* ============================================================
+   pago.css — suscripción simulada
+   Usa las variables de global.css
+   ============================================================ */
+
+/* ── Contenedor ─────────────────────────────────────────────── */
+.pago-contenedor {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+}
+
+.pago-caja {
+    max-width: 480px;
+}
+
+.pago-precio {
+    color: var(--accent);
+    font-size: 1.05em;
+}
+
+/* ── Resumen del plan ─────────────────────────────────────────  */
+.pago-plan {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+}
+
+.pago-plan-fila {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    color: var(--text-secondary);
+}
+
+.pago-plan-total {
+    border-top: 1px solid var(--border);
+    margin-top: 0.5rem;
+    padding-top: 0.65rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+}
+
+.pago-plan-precio {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+/* ── Input con badge VISA ────────────────────────────────────── */
+.pago-input-icono {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.pago-input-icono input {
+    width: 100%;
+    padding-right: 4.5rem;
+}
+
+.pago-visa-badge {
+    position: absolute;
+    right: 0.75rem;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #1a1a7e;
+    background: #d0d8f0;
+    padding: 0.15rem 0.45rem;
+    border-radius: 3px;
+    pointer-events: none;
+    font-family: var(--font-display);
+}
+
+/* ── Inputs de solo lectura ──────────────────────────────────── */
+.pago-form input[readonly] {
+    opacity: 0.75;
+    cursor: default;
+}
+
+.pago-form input[readonly]:focus {
+    border-color: var(--border);
+    box-shadow: none;
+}
+
+/* ── Aviso sandbox ───────────────────────────────────────────── */
+.pago-aviso {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.55rem 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.pago-lock {
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+/* ── Botón ───────────────────────────────────────────────────── */
+.pago-btn {
+    font-size: 0.88rem;
+    padding: 0.8rem 1.3rem;
+    letter-spacing: 0.03em;
+}

@@ -7,7 +7,7 @@ from datetime import datetime
 # Mismos datos que base_datos.php
 DB_HOST     = "localhost"
 DB_PORT     = 3306
-DB_NAME     = "escape_room"
+DB_NAME     = "escape_db"
 DB_USER     = "escape_user"
 DB_PASSWORD = "password1234"
 
@@ -18,8 +18,8 @@ DATABASE_URL = (
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,       # reconecta si la conexión se cae
-    pool_recycle=3600,        # recicla conexiones cada hora
+    pool_pre_ping=True,   # reconecta si la conexión se cae
+    pool_recycle=3600,    # recicla conexiones cada hora
 )
 
 SessionLocal = sessionmaker(bind=engine)
@@ -29,8 +29,8 @@ Base = declarative_base()
 class Session(Base):
     __tablename__ = "sesiones_reto"
 
-    id_sesion    = Column(Integer, primary_key=True, autoincrement=True)
-    id_usuario   = Column(String(50),  nullable=False)
+    id_sesion    = Column(Integer,     primary_key=True, autoincrement=True)
+    id_usuario   = Column(Integer,     nullable=False)
     id_partida   = Column(Integer,     nullable=True)
     challenge_id = Column(String(50),  nullable=False)
     container_id = Column(String(100), nullable=True)

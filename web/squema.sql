@@ -13,6 +13,7 @@ CREATE TABLE IF NOT EXISTS usuarios (
     email          VARCHAR(255)  NOT NULL,
     rol            VARCHAR(50)   NOT NULL DEFAULT 'usuario',
     contrasena     VARCHAR(255)  NOT NULL,
+    suscrito       TINYINT       NOT NULL DEFAULT 0,
     fecha_registro DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (id_usuario),
     UNIQUE KEY uq_email (email)
