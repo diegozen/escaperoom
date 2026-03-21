@@ -1,0 +1,300 @@
+/* ============================================================
+   Escape Room Tecnológico — global.css
+   Paleta: fondo #0a0e13, superficie #111820, acento #00ff9d
+   Tipografía: JetBrains Mono (código) + Syne (títulos)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;600;700;800&display=swap');
+
+/* ── Reset ─────────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Variables ──────────────────────────────────────────────── */
+:root {
+    --bg:           #0a0e13;
+    --surface:      #111820;
+    --surface-2:    #1a2332;
+    --border:       #1e2d3d;
+    --border-hover: #2a4060;
+    --accent:       #00ff9d;
+    --accent-dim:   #00cc7d;
+    --accent-glow:  rgba(0, 255, 157, 0.12);
+    --text-primary: #e8edf2;
+    --text-secondary: #7a8fa6;
+    --text-muted:   #4a5e72;
+    --danger:       #ff4757;
+    --warning:      #ffa502;
+    --font-mono:    'JetBrains Mono', monospace;
+    --font-display: 'Syne', sans-serif;
+    --radius:       6px;
+    --radius-lg:    10px;
+    --transition:   0.18s ease;
+}
+
+/* ── Base ───────────────────────────────────────────────────── */
+html { font-size: 16px; scroll-behavior: smooth; }
+
+body {
+    background-color: var(--bg);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main { flex: 1; }
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color var(--transition);
+}
+a:hover { color: var(--accent-dim); }
+
+img { display: block; max-width: 100%; }
+
+/* ── Cabecera / Nav ─────────────────────────────────────────── */
+.cabecera {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background-color: rgba(10, 14, 19, 0.95);
+    border-bottom: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+}
+
+.cabecera nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.cabecera nav .logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin-right: auto;
+}
+
+.cabecera nav .logo span {
+    color: var(--accent);
+}
+
+.cabecera nav a {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    transition: color var(--transition);
+}
+
+.cabecera nav a:hover { color: var(--text-primary); }
+
+/* Menú usuario con dropdown */
+.menu-usuario {
+    position: relative;
+}
+
+.menu-usuario .saludo {
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: color var(--transition);
+    user-select: none;
+}
+
+.menu-usuario:hover .saludo { color: var(--text-primary); }
+
+.submenu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    min-width: 200px;
+    padding: 0.5rem 0;
+    z-index: 200;
+}
+
+.menu-usuario:hover .submenu { display: block; }
+
+.submenu a {
+    display: block;
+    padding: 0.6rem 1.2rem;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: 0;
+    transition: background var(--transition), color var(--transition);
+}
+
+.submenu a:hover {
+    background: var(--surface-2);
+    color: var(--text-primary);
+}
+
+/* ── Botones ────────────────────────────────────────────────── */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1.3rem;
+    border-radius: var(--radius);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all var(--transition);
+    white-space: nowrap;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: #0a0e13;
+    border-color: var(--accent);
+}
+.btn-primary:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent-dim);
+    color: #0a0e13;
+    box-shadow: 0 0 20px var(--accent-glow);
+}
+
+.btn-outline {
+    background: transparent;
+    color: var(--accent);
+    border-color: var(--accent);
+}
+.btn-outline:hover {
+    background: var(--accent-glow);
+    color: var(--accent);
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--text-secondary);
+    border-color: var(--border);
+}
+.btn-ghost:hover {
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+}
+
+/* ── Formularios ────────────────────────────────────────────── */
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-group label {
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    padding: 0.65rem 0.9rem;
+    transition: border-color var(--transition);
+    outline: none;
+    width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
+
+.form-group input::placeholder { color: var(--text-muted); }
+
+/* ── Alertas ────────────────────────────────────────────────── */
+.alerta {
+    padding: 0.75rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.84rem;
+    border-left: 3px solid;
+}
+.alerta-error   { background: rgba(255,71,87,0.08); border-color: var(--danger); color: #ff8a95; }
+.alerta-exito   { background: rgba(0,255,157,0.08); border-color: var(--accent); color: var(--accent); }
+.alerta-aviso   { background: rgba(255,165,2,0.08); border-color: var(--warning); color: var(--warning); }
+
+/* ── Pie de página ──────────────────────────────────────────── */
+.pie {
+    border-top: 1px solid var(--border);
+    padding: 1.5rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+}
+
+/* ── Utilidades ─────────────────────────────────────────────── */
+.contenedor {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+}
+
+.etiqueta {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+.etiqueta-verde  { background: rgba(0,255,157,0.12); color: var(--accent); border: 1px solid rgba(0,255,157,0.25); }
+.etiqueta-roja   { background: rgba(255,71,87,0.12); color: var(--danger); border: 1px solid rgba(255,71,87,0.25); }
+.etiqueta-gris   { background: rgba(122,143,166,0.12); color: var(--text-secondary); border: 1px solid var(--border); }
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .cabecera nav {
+        padding: 0 1rem;
+        gap: 1rem;
+        flex-wrap: wrap;
+        height: auto;
+        padding-top: 0.8rem;
+        padding-bottom: 0.8rem;
+    }
+
+    .cabecera nav .logo { width: 100%; }
+
+    .submenu {
+        position: static;
+        border: none;
+        padding: 0;
+        background: transparent;
+    }
+}

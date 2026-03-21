@@ -1,0 +1,204 @@
+/* ============================================================
+   ranking.css
+   ============================================================ */
+
+.ranking-contenedor {
+    padding-top: 3rem;
+    padding-bottom: 4rem;
+}
+
+/* ── Selector de reto ───────────────────────────────────────── */
+.ranking-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 2rem;
+}
+
+/* ── Placeholder ────────────────────────────────────────────── */
+.ranking-placeholder {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+/* ── Tabla (reutiliza estilos de laboratorio) ───────────────── */
+.tabla-contenedor {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+}
+
+.tabla {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+
+.tabla thead {
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--border);
+}
+
+.tabla th {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.tabla td {
+    padding: 0.85rem 1rem;
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border);
+}
+
+.tabla tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.tabla tbody tr:hover td {
+    background: var(--surface-2);
+}
+
+/* Fila del usuario actual */
+.fila-yo td {
+    background: rgba(0, 255, 157, 0.05);
+}
+
+.fila-yo:hover td {
+    background: rgba(0, 255, 157, 0.08) !important;
+}
+
+/* Posición con medallas */
+.posicion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: 0.78rem;
+    font-weight: 700;
+    font-family: var(--font-display);
+    background: var(--surface-2);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+.pos-oro    { background: rgba(255, 193, 7, 0.15);  color: #ffc107; border-color: rgba(255,193,7,0.3); }
+.pos-plata  { background: rgba(176, 190, 197, 0.15); color: #b0bec5; border-color: rgba(176,190,197,0.3); }
+.pos-bronce { background: rgba(188, 111, 73, 0.15);  color: #bc6f49; border-color: rgba(188,111,73,0.3); }
+
+/* Tiempo resaltado */
+.tiempo-valor {
+    font-family: var(--font-mono);
+    color: var(--accent) !important;
+    font-size: 0.85rem;
+}
+
+/* Contexto fuera del top */
+.ranking-contexto-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 2rem 0 0.75rem;
+}
+
+/* ── Progreso personal ──────────────────────────────────────── */
+.progreso-resumen {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    padding: 1.2rem 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+}
+
+.progreso-stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 120px;
+}
+
+.progreso-valor {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.progreso-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.progreso-barra-contenedor {
+    flex: 1;
+    height: 6px;
+    background: var(--surface-2);
+    border-radius: 100px;
+    min-width: 120px;
+    overflow: hidden;
+}
+
+.progreso-barra {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 100px;
+    transition: width 0.6s ease;
+}
+
+.progreso-pct {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--accent);
+    min-width: 36px;
+    text-align: right;
+}
+
+/* Retos pendientes */
+.pendientes-cabecera {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.pendientes-subtitulo {
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .ranking-selector {
+        gap: 0.4rem;
+    }
+
+    .progreso-resumen {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .progreso-barra-contenedor {
+        width: 100%;
+    }
+}

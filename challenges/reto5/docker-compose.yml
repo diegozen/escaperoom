@@ -1,0 +1,80 @@
+services:
+  objetivo:
+    build:
+      context: .
+      dockerfile: Dockerfile.objetivo
+    container_name: escape_reto5_objetivo
+    environment:
+      - FLAG=grupal_secret
+    mem_limit: 512m
+    cpus: '0.5'
+    networks:
+      red_grupal:
+        ipv4_address: 172.100.9.10
+
+  jugador1:
+    build:
+      context: .
+      dockerfile: Dockerfile.jugador
+    container_name: escape_reto5_jugador1
+    ports:
+      - "2205:22"
+    environment:
+      - SSH_USER=jugador1
+      - SSH_PASS=${PASS_J1}
+    cap_add:
+      - NET_ADMIN
+    mem_limit: 256m
+    cpus: '0.3'
+    networks:
+      - red_grupal
+      - red_ssh
+
+  jugador2:
+    build:
+      context: .
+      dockerfile: Dockerfile.jugador
+    container_name: escape_reto5_jugador2
+    ports:
+      - "2206:22"
+    environment:
+      - SSH_USER=jugador2
+      - SSH_PASS=${PASS_J2}
+    cap_add:
+      - NET_ADMIN
+    mem_limit: 256m
+    cpus: '0.3'
+    networks:
+      - red_grupal
+      - red_ssh
+
+  jugador3:
+    build:
+      context: .
+      dockerfile: Dockerfile.jugador
+    container_name: escape_reto5_jugador3
+    ports:
+      - "2207:22"
+    environment:
+      - SSH_USER=jugador3
+      - SSH_PASS=${PASS_J3}
+    cap_add:
+      - NET_ADMIN
+    mem_limit: 256m
+    cpus: '0.3'
+    networks:
+      - red_grupal
+      - red_ssh
+
+networks:
+  red_grupal:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.100.9.0/24
+  red_ssh:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.100.10.0/24

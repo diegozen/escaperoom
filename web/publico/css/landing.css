@@ -1,0 +1,238 @@
+/* ============================================================
+   landing.css
+   ============================================================ */
+
+/* ── Hero ───────────────────────────────────────────────────── */
+.hero {
+    position: relative;
+    min-height: calc(100vh - 60px);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+.hero-fondo {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+.hero-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(0, 255, 157, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 157, 0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 70% at 50% 40%, black 30%, transparent 100%);
+}
+
+.hero-contenido {
+    position: relative;
+    z-index: 1;
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+}
+
+.hero-etiqueta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 0.35rem 0.8rem;
+    border-radius: 100px;
+    margin-bottom: 2rem;
+}
+
+.punto-verde {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+}
+
+.hero-titulo {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+.hero-titulo .acento {
+    color: var(--accent);
+}
+
+.hero-subtitulo {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 520px;
+    margin-bottom: 2.5rem;
+}
+
+.hero-acciones {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 3.5rem;
+}
+
+/* Stats */
+.hero-stats {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.stat-valor {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stat-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+}
+
+.stat-divisor {
+    width: 1px;
+    height: 32px;
+    background: var(--border);
+}
+
+/* ── Cómo funciona ──────────────────────────────────────────── */
+.como-funciona {
+    padding: 6rem 0;
+    border-top: 1px solid var(--border);
+}
+
+.seccion-cabecera {
+    text-align: center;
+    margin-bottom: 4rem;
+}
+
+.seccion-titulo {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 3vw, 2.4rem);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+}
+
+.seccion-subtitulo {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+    max-width: 480px;
+    margin: 0 auto;
+}
+
+/* Pasos */
+.pasos {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+.paso {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 0 1.5rem;
+}
+
+.paso-numero {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--border-hover);
+    line-height: 1;
+    margin-bottom: 1.2rem;
+    letter-spacing: -0.04em;
+}
+
+.paso-contenido h3 {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+}
+
+.paso-contenido p {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+
+.paso-conector {
+    flex-shrink: 0;
+    width: 48px;
+    height: 1px;
+    background: var(--border);
+    margin-top: 1.25rem;
+    align-self: flex-start;
+    margin-top: 3.5rem;
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .hero-contenido {
+        padding-top: 3rem;
+        padding-bottom: 3rem;
+    }
+
+    .hero-stats {
+        gap: 1rem;
+    }
+
+    .pasos {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 2rem;
+    }
+
+    .paso {
+        flex-direction: row;
+        text-align: left;
+        align-items: flex-start;
+        gap: 1.2rem;
+        padding: 0;
+    }
+
+    .paso-numero {
+        margin-bottom: 0;
+        min-width: 48px;
+    }
+
+    .paso-conector {
+        display: none;
+    }
+}

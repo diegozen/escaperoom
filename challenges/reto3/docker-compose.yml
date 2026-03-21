@@ -1,0 +1,29 @@
+services:
+  reto3:
+    build: .
+    container_name: escape_reto3
+    ports:
+      - "2203:22"
+    environment:
+      - SSH_USER=jugador
+      - SSH_PASS=password123
+      - FLAG=pr1v3sc_secret
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - red_ssh
+      - red_interna
+
+networks:
+  red_ssh:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.100.5.0/24
+  red_interna:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.100.6.0/24

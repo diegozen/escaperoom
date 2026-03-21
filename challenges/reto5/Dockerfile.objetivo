@@ -1,0 +1,21 @@
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+    openssh-server \
+    python3 \
+    netcat-openbsd \
+    vsftpd \
+    sudo \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir /var/run/sshd
+RUN echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
+RUN echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
+
+COPY setup_objetivo.sh /setup.sh
+RUN chmod +x /setup.sh
+
+EXPOSE 22 21 80
+CMD ["/setup.sh"]

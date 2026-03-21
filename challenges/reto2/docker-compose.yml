@@ -1,0 +1,29 @@
+services:
+  reto2:
+    build: .
+    container_name: escape_reto2
+    ports:
+      - "2202:22"
+    environment:
+      - SSH_USER=jugador
+      - SSH_PASS=password123
+      - FLAG=sqli_secret
+    cap_add:
+      - NET_ADMIN # Permite usar iptables dentro del contenedor
+    networks:
+      - red_ssh
+      - red_interna
+
+networks:
+  red_ssh:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.100.3.0/24
+  red_interna:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.100.4.0/24

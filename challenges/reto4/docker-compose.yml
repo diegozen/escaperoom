@@ -1,0 +1,33 @@
+services:
+  reto4:
+    build: .
+    container_name: escape_reto4
+    ports:
+      - "2204:22"
+    environment:
+      - SSH_USER=jugador
+      - SSH_PASS=password123
+      - FLAG=sniff_secret
+      - FTP_PASS=clave_secreta_ftp
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    mem_limit: 512m
+    cpus: '0.5'
+    networks:
+      - red_ssh
+      - red_interna
+
+networks:
+  red_ssh:
+    driver: bridge
+    internal: false
+    ipam:
+      config:
+        - subnet: 172.100.7.0/24
+  red_interna:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: 172.100.8.0/24
