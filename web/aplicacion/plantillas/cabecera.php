@@ -38,11 +38,11 @@ if (isset($_SESSION["usuario"])) {
         <a href="/escape-room/aplicacion/ranking/ranking.php">Ranking</a>
 
         <?php if ($usuarioLogueado): ?>
-            <div class="menu-usuario">
-                <span class="saludo">
+            <div class="menu-usuario" id="menuUsuario">
+                <span class="saludo" id="menuTrigger">
                     <?= htmlspecialchars($usuarioLogueado["nombre"]) ?> &#9660;
                 </span>
-                <div class="submenu">
+                <div class="submenu" id="submenuUsuario">
                     <a href="/escape-room/aplicacion/laboratorio/historial.php">Mis partidas</a>
                     <a href="/escape-room/aplicacion/ranking/ranking_personal.php">Estadísticas</a>
                     <a href="/escape-room/aplicacion/autenticacion/cerrar_sesion.php">Cerrar sesión</a>
@@ -56,3 +56,30 @@ if (isset($_SESSION["usuario"])) {
 </header>
 
 <main>
+
+<script>
+(function () {
+    const trigger = document.getElementById("menuTrigger");
+    const menu    = document.getElementById("menuUsuario");
+
+    if (!trigger || !menu) return;
+
+    // Abrir/cerrar con click
+    trigger.addEventListener("click", function (e) {
+        e.stopPropagation();
+        menu.classList.toggle("abierto");
+    });
+
+    // Cerrar al hacer click fuera
+    document.addEventListener("click", function (e) {
+        if (!menu.contains(e.target)) {
+            menu.classList.remove("abierto");
+        }
+    });
+
+    // Cerrar al pulsar Escape
+    document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape") menu.classList.remove("abierto");
+    });
+})();
+</script>

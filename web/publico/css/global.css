@@ -116,10 +116,11 @@ img { display: block; max-width: 100%; }
     user-select: none;
 }
 
-.menu-usuario:hover .saludo { color: var(--text-primary); }
+.menu-usuario:hover .saludo,
+.menu-usuario.abierto .saludo { color: var(--text-primary); }
 
 .submenu {
-    display: none;
+    display: block;
     position: absolute;
     top: calc(100% + 12px);
     right: 0;
@@ -129,9 +130,20 @@ img { display: block; max-width: 100%; }
     min-width: 200px;
     padding: 0.5rem 0;
     z-index: 200;
+    /* Oculto por defecto — controlado por JS con clase .abierto */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-6px);
+    transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+    pointer-events: none;
 }
 
-.menu-usuario:hover .submenu { display: block; }
+.menu-usuario.abierto .submenu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
 
 .submenu a {
     display: block;
