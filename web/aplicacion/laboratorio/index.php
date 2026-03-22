@@ -88,7 +88,7 @@ $retos = [
     [
         "id"           => "reto5",
         "titulo"       => "Ataque coordinado",
-        "descripcion"  => "Reto grupal. Comprometéd la máquina objetivo trabajando en equipo: uno escanea, otro explota, otro escala.",
+        "descripcion"  => "Reto grupal. Comprometed la máquina objetivo trabajando en equipo: uno escanea, otro explota, otro escala.",
         "dificultad"   => "Avanzado",
         "tiempo"       => "45 min",
         "tipo"         => "grupal",
