@@ -9,7 +9,7 @@ DB_HOST     = "localhost"
 DB_PORT     = 3306
 DB_NAME     = "escape_db"
 DB_USER     = "escape_user"
-DB_PASSWORD = "password1234"
+DB_PASSWORD = "escape_pass"
 
 DATABASE_URL = (
     f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"

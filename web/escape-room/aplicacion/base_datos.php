@@ -1,7 +1,7 @@
 <?php
 // ── Configuración de conexión ────────────────────────────────
 // Rellena estos valores con los datos de tu hosting (Byethost)
-$host     = "localhost";
+$host     = "127.0.0.1";
 $bd       = "escape_db";
 $usuario  = "escape_user";
 $contrasena = "escape_pass";

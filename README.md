@@ -78,8 +78,8 @@ Cada flag tiene el formato `FLAG{xxxxxxxxxxxx}` y es única por usuario (MD5 de 
 
 ```sql
 CREATE DATABASE escape_db CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-CREATE USER 'escape_user'@'localhost' IDENTIFIED BY 'escape_pass';
-GRANT ALL PRIVILEGES ON escape_db.* TO 'escape_user'@'localhost';
+CREATE USER 'escape_user'@'%' IDENTIFIED BY 'escape_pass';
+GRANT ALL PRIVILEGES ON escape_db.* TO 'escape_user'@'%';
 FLUSH PRIVILEGES;
 ```
 
@@ -149,7 +149,13 @@ WantedBy=multi-user.target
 
 ### 6. Servidor web
 
-Configura Apache o Nginx para servir `web/` bajo `/escape-room/` y asegúrate de que PHP tiene acceso a `curl` y `pdo_mysql`.
+Levanta el servidor PHP para la página web desde el directorio `web/`
+```
+php -S localhost:8080 
+```
+La página principal estará en http://localhost:8080/escape-room/publico/landing.php
+
+Para producción, configura Apache o Nginx para servir `web/` bajo `/escape-room/` y asegúrate de que PHP tiene acceso a `curl` y `pdo_mysql`.
 
 ---
 
