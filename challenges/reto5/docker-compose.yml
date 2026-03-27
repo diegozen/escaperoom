@@ -4,10 +4,23 @@ services:
       context: .
       dockerfile: Dockerfile.objetivo
     container_name: escape_reto5_objetivo
+    restart: unless-stopped
+
     environment:
-      - FLAG=grupal_secret
+      - TZ=Europe/Madrid
+      - FLAG=grup4l_secret
+    
     mem_limit: 512m
+    
     cpus: '0.5'
+
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/22"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    
     networks:
       red_grupal:
         ipv4_address: 172.100.9.10
@@ -17,15 +30,30 @@ services:
       context: .
       dockerfile: Dockerfile.jugador
     container_name: escape_reto5_jugador1
+    restart: unless-stopped
+
     ports:
       - "2205:22"
+    
     environment:
+      - TZ=Europe/Madrid
       - SSH_USER=jugador1
       - SSH_PASS=${PASS_J1}
+
     cap_add:
-      - NET_ADMIN
+      - NET_ADMIN # Permite usar iptables dentro del contenedor
+    
     mem_limit: 256m
+    
     cpus: '0.3'
+
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/22"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    
     networks:
       - red_grupal
       - red_ssh
@@ -35,15 +63,30 @@ services:
       context: .
       dockerfile: Dockerfile.jugador
     container_name: escape_reto5_jugador2
+    restart: unless-stopped
+
     ports:
       - "2206:22"
+    
     environment:
+      - TZ=Europe/Madrid
       - SSH_USER=jugador2
       - SSH_PASS=${PASS_J2}
+    
     cap_add:
-      - NET_ADMIN
+      - NET_ADMIN # Permite usar iptables dentro del contenedor
+    
     mem_limit: 256m
+    
     cpus: '0.3'
+
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/22"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    
     networks:
       - red_grupal
       - red_ssh
@@ -53,15 +96,30 @@ services:
       context: .
       dockerfile: Dockerfile.jugador
     container_name: escape_reto5_jugador3
+    restart: unless-stopped
+
     ports:
       - "2207:22"
+    
     environment:
+      - TZ=Europe/Madrid
       - SSH_USER=jugador3
       - SSH_PASS=${PASS_J3}
+    
     cap_add:
-      - NET_ADMIN
+      - NET_ADMIN # Permite usar iptables dentro del contenedor
+    
     mem_limit: 256m
+    
     cpus: '0.3'
+
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/22"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 10s
+    
     networks:
       - red_grupal
       - red_ssh

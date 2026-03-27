@@ -2,14 +2,31 @@ services:
   reto3:
     build: .
     container_name: escape_reto3
+    restart: unless-stopped
+
     ports:
       - "2203:22"
+    
     environment:
+      - TZ=Europe/Madrid
       - SSH_USER=jugador
-      - SSH_PASS=password123
-      - FLAG=privesc_secret
+      - SSH_PASS=password
+      - FLAG=pr1v3sc_secret
+
     cap_add:
-      - NET_ADMIN
+      - NET_ADMIN # Permite usar iptables dentro del contenedor
+    
+    mem_limit: 512m
+    
+    cpus: '0.5'
+
+    healthcheck:
+      test: ["CMD", "bash", "-c", "echo > /dev/tcp/localhost/22"]
+      interval: 5s
+      timeout: 3s
+      retries: 6
+      start_period: 10s  
+    
     networks:
       - red_ssh
       - red_interna

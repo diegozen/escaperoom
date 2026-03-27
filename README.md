@@ -28,7 +28,7 @@ Plataforma web de retos de ciberseguridad y redes al estilo Hack The Box / TryHa
 │   ├── reto4/          # Sniffing de tráfico (tcpdump)
 │   └── reto5/          # Ataque coordinado grupal
 ├── orquestador/        # API FastAPI — gestión de contenedores
-└── web/                # Frontend PHP
+└── web/ escape_room    # Frontend PHP
     ├── publico/        # Landing page
     └── aplicacion/     # Autenticación, laboratorio, ranking, pagos
 ```
