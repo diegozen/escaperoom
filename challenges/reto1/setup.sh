@@ -1,35 +1,45 @@
 #!/bin/bash
+set -e
 
-# Crear usuario SSH
-useradd -m -s /bin/bash $SSH_USER
+# ── Usuarios ──────────────────────────────────────────────────
+useradd -m -s /bin/bash "$SSH_USER"
 echo "$SSH_USER:$SSH_PASS" | chpasswd
 
-# Servicio HTTP simple en puerto 8080 con una pista
+# ── Servicios de pista ────────────────────────────────────────
 mkdir -p /var/www/pista
 echo "Interesante... pero la flag no está aquí. Prueba el puerto 3000." \
-> /var/www/pista/index.html
+    > /var/www/pista/index.html
 cd /var/www/pista && python3 -m http.server 8080 &
 
-# Servicio netcat en puerto 3000 con otra pista
 while true; do
-echo "Casi... sigue buscando. Mira en /opt/.secreto/" | nc -l -p 3000 -q 1
+    echo "Casi... sigue buscando. Mira en /opt/.secreto/" | nc -l -p 3000 -q 1 2>/dev/null
 done &
 
-# La flag real está en un archivo escondido
+# ── Flag ──────────────────────────────────────────────────────
 mkdir -p /opt/.secreto
-FLAG_UNICA="FLAG{$(echo $SSH_USER$FLAG | md5sum | cut -c1-12)}"
+FLAG_UNICA="FLAG{$(printf '%s%s' "$SSH_USER" "$FLAG" | md5sum | cut -c1-12)}"
 echo "$FLAG_UNICA" > /opt/.secreto/flag.txt
 chmod 644 /opt/.secreto/flag.txt
 
-# Bloquear tráfico saliente a internet, permitir solo la red local
+# ── iptables: aislamiento estricto ───────────────────────────
+iptables -F
+iptables -X
+ip6tables -F 2>/dev/null || true
+
+iptables -P INPUT   DROP
 iptables -P FORWARD DROP
-iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT    # redes privadas Docker
-iptables -A OUTPUT -d 172.100.0.0/16 -j ACCEPT       # loopback
-iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT  # conexiones ya establecidas (SSH)
-iptables -A OUTPUT -j DROP                          # bloquear todo lo demás
+iptables -P OUTPUT  DROP
 
-# Arrancar SSH
+iptables -A INPUT  -i lo                                          -j ACCEPT
+iptables -A INPUT  -p tcp --dport 22  -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A INPUT  -m state --state ESTABLISHED,RELATED           -j ACCEPT
+
+iptables -A OUTPUT -o lo                                          -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 22  -m state --state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -d 172.100.0.0/16                              -j ACCEPT
+
+echo "[OK] iptables aplicadas"
+
+# ── SSH ───────────────────────────────────────────────────────
 service ssh start
-
-# Mantener contenedor vivo
 tail -f /dev/null

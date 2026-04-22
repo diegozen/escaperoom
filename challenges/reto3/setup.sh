@@ -1,34 +1,45 @@
 #!/bin/bash
+set -e
 
-# Crear usuario SSH
-useradd -m -s /bin/bash $SSH_USER
+# ── Usuarios ──────────────────────────────────────────────────
+useradd -m -s /bin/bash "$SSH_USER"
 echo "$SSH_USER:$SSH_PASS" | chpasswd
 
-# Flag única por usuario
-FLAG_UNICA="FLAG{$(echo $SSH_USER$FLAG | md5sum | cut -c1-12)}"
-
-# La flag solo la puede leer root
+# ── Flag (solo root puede leerla) ─────────────────────────────
+FLAG_UNICA="FLAG{$(printf '%s%s' "$SSH_USER" "$FLAG" | md5sum | cut -c1-12)}"
 mkdir -p /root/secreto
 echo "$FLAG_UNICA" > /root/secreto/flag.txt
 chmod 700 /root/secreto
 chmod 600 /root/secreto/flag.txt
 
-# Pista en el home del jugador
-echo "Algo en este sistema tiene más permisos de los que debería..." \
-    > /home/$SSH_USER/pista.txt
+# ── Pista ─────────────────────────────────────────────────────
+echo "Algo en este sistema tiene más permisos de los que debería. Busca binarios con bits especiales." \
+    > "/home/$SSH_USER/pista.txt"
+chown "$SSH_USER":"$SSH_USER" "/home/$SSH_USER/pista.txt"
 
-# Vector de escalada: binario bash con bit SUID
+# ── Vector de escalada: bash con SUID ────────────────────────
 cp /bin/bash /usr/local/bin/bash_suid
 chmod u+s /usr/local/bin/bash_suid
 
-# Bloquear tráfico saliente a internet, permitir solo la red local
+# ── iptables: aislamiento estricto ───────────────────────────
+iptables -F
+iptables -X
+ip6tables -F 2>/dev/null || true
+
+iptables -P INPUT   DROP
 iptables -P FORWARD DROP
-iptables -A OUTPUT -d 127.0.0.0/8 -j ACCEPT    # redes privadas Docker
-iptables -A OUTPUT -d 172.100.0.0/16 -j ACCEPT       # loopback
-iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT  # conexiones ya establecidas (SSH)
-iptables -A OUTPUT -j DROP                          # bloquear todo lo demás
+iptables -P OUTPUT  DROP
 
-# Arrancar SSH
+iptables -A INPUT  -i lo                                               -j ACCEPT
+iptables -A INPUT  -p tcp --dport 22   -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A INPUT  -m state --state ESTABLISHED,RELATED                -j ACCEPT
+
+iptables -A OUTPUT -o lo                                               -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 22   -m state --state ESTABLISHED    -j ACCEPT
+iptables -A OUTPUT -d 172.100.0.0/16                                   -j ACCEPT
+
+echo "[OK] iptables aplicadas"
+
+# ── SSH ───────────────────────────────────────────────────────
 service ssh start
-
 tail -f /dev/null
