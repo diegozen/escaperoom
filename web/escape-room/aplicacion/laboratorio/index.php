@@ -1,31 +1,11 @@
 <?php
 require "../plantillas/cabecera.php";
 
-// Protección: requiere login
-if (!isset($_SESSION["usuario"])) {
-    header("Location: /escape-room/aplicacion/autenticacion/iniciar_sesion.php");
-    exit;
-}
+requerir_login();
+$id_usuario = (int)$_SESSION["usuario"];
+requerir_suscripcion($conexion, $id_usuario);
 
-$id_usuario = $_SESSION["usuario"];
-
-// Protección: requiere suscripción activa
-try {
-    $stmtSub = $conexion->prepare(
-        "SELECT suscrito FROM usuarios WHERE id_usuario = :id LIMIT 1"
-    );
-    $stmtSub->execute([":id" => $id_usuario]);
-    $sub = $stmtSub->fetch();
-
-    if (!$sub || !$sub["suscrito"]) {
-        header("Location: /escape-room/aplicacion/pagos/pago.php");
-        exit;
-    }
-} catch (PDOException $e) {
-    error_log("Error verificando suscripción: " . $e->getMessage());
-}
-
-// Obtener sesiones activas del usuario para saber qué retos tiene en curso
+// Obtener sesiones activas del usuario
 try {
     $sql  = "SELECT challenge_id, status, ssh_host, ssh_port, ssh_user, ssh_pass, started_at
              FROM sesiones_reto
@@ -35,7 +15,6 @@ try {
     $stmt->execute([":id" => $id_usuario]);
     $sesiones = $stmt->fetchAll();
 
-    // Indexar por challenge_id para consulta rápida (solo la más reciente de cada reto)
     $sesiones_idx = [];
     foreach ($sesiones as $s) {
         if (!isset($sesiones_idx[$s["challenge_id"]])) {
@@ -47,7 +26,6 @@ try {
     $sesiones_idx = [];
 }
 
-// Definición de los retos
 $retos = [
     [
         "id"           => "reto1",
@@ -101,6 +79,8 @@ $colores_dificultad = [
     "Intermedio" => "etiqueta-aviso",
     "Avanzado"   => "etiqueta-roja",
 ];
+
+$csrf = csrf_generar();
 ?>
 
 <link rel="stylesheet" href="/escape-room/aplicacion/laboratorio/css/laboratorio.css">
@@ -115,7 +95,6 @@ $colores_dificultad = [
         </div>
     </div>
 
-    <!-- Mensajes de estado -->
     <?php if (isset($_GET["error"])): ?>
         <div class="alerta alerta-error">
             <?= htmlspecialchars($_GET["error"]) ?>
@@ -165,7 +144,6 @@ $colores_dificultad = [
             </div>
 
             <?php if ($activa): ?>
-                <!-- Reto en curso: mostrar credenciales y opciones -->
                 <div class="reto-credenciales">
                     <div class="cred-bloque">
                         <span class="cred-label">Conexión SSH</span>
@@ -179,14 +157,23 @@ $colores_dificultad = [
                 <div class="reto-acciones">
                     <a href="/escape-room/aplicacion/laboratorio/validar_flag.php?reto=<?= $reto["id"] ?>"
                        class="btn btn-primary">Validar flag</a>
-                    <a href="/escape-room/aplicacion/laboratorio/abortar_reto.php?reto=<?= $reto["id"] ?>"
-                       class="btn btn-ghost"
-                       onclick="return confirm('¿Seguro que quieres abortar este reto?')">Abortar</a>
+                    <form method="POST"
+                          action="/escape-room/aplicacion/laboratorio/abortar_reto.php"
+                          style="display:inline"
+                          onsubmit="return confirm('¿Seguro que quieres abortar este reto?')">
+                        <input type="hidden" name="reto"       value="<?= htmlspecialchars($reto["id"]) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
+                        <button type="submit" class="btn btn-ghost">Abortar</button>
+                    </form>
                 </div>
             <?php else: ?>
                 <div class="reto-acciones">
-                    <a href="/escape-room/aplicacion/laboratorio/iniciar_reto.php?reto=<?= $reto["id"] ?>"
-                       class="btn btn-outline">Iniciar reto</a>
+                    <form method="POST"
+                          action="/escape-room/aplicacion/laboratorio/iniciar_reto.php">
+                        <input type="hidden" name="reto"       value="<?= htmlspecialchars($reto["id"]) ?>">
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($csrf) ?>">
+                        <button type="submit" class="btn btn-outline">Iniciar reto</button>
+                    </form>
                 </div>
             <?php endif; ?>
 

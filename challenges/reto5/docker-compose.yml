@@ -9,9 +9,12 @@ services:
     environment:
       - TZ=Europe/Madrid
       - FLAG=grup4l_secret
-    
+
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+
     mem_limit: 512m
-    
     cpus: '0.5'
 
     healthcheck:
@@ -19,8 +22,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 6
-      start_period: 10s
-    
+      start_period: 15s
+
     networks:
       red_grupal:
         ipv4_address: 172.100.9.10
@@ -34,17 +37,17 @@ services:
 
     ports:
       - "2205:22"
-    
+
     environment:
       - TZ=Europe/Madrid
       - SSH_USER=jugador1
       - SSH_PASS=${PASS_J1}
 
     cap_add:
-      - NET_ADMIN # Permite usar iptables dentro del contenedor
-    
+      - NET_ADMIN
+      - NET_RAW
+
     mem_limit: 256m
-    
     cpus: '0.3'
 
     healthcheck:
@@ -52,8 +55,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 6
-      start_period: 10s
-    
+      start_period: 15s
+
     networks:
       - red_grupal
       - red_ssh
@@ -67,17 +70,17 @@ services:
 
     ports:
       - "2206:22"
-    
+
     environment:
       - TZ=Europe/Madrid
       - SSH_USER=jugador2
       - SSH_PASS=${PASS_J2}
-    
+
     cap_add:
-      - NET_ADMIN # Permite usar iptables dentro del contenedor
-    
+      - NET_ADMIN
+      - NET_RAW
+
     mem_limit: 256m
-    
     cpus: '0.3'
 
     healthcheck:
@@ -85,8 +88,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 6
-      start_period: 10s
-    
+      start_period: 15s
+
     networks:
       - red_grupal
       - red_ssh
@@ -100,17 +103,17 @@ services:
 
     ports:
       - "2207:22"
-    
+
     environment:
       - TZ=Europe/Madrid
       - SSH_USER=jugador3
       - SSH_PASS=${PASS_J3}
-    
+
     cap_add:
-      - NET_ADMIN # Permite usar iptables dentro del contenedor
-    
+      - NET_ADMIN
+      - NET_RAW
+
     mem_limit: 256m
-    
     cpus: '0.3'
 
     healthcheck:
@@ -118,8 +121,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 6
-      start_period: 10s
-    
+      start_period: 15s
+
     networks:
       - red_grupal
       - red_ssh

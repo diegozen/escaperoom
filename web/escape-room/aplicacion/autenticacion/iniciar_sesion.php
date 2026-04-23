@@ -5,7 +5,19 @@ $errores = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
-    $email     = trim($_POST["email"]     ?? "");
+    // CSRF
+    csrf_validar();
+
+    // Rate limiting: 10 intentos por IP en 5 minutos
+    rate_limit_o_abortar(
+        'login',
+        10,
+        300,
+        '/escape-room/aplicacion/autenticacion/iniciar_sesion.php',
+        'Demasiados intentos de inicio de sesión. Espera 5 minutos.'
+    );
+
+    $email      = trim($_POST["email"]      ?? "");
     $contrasena = trim($_POST["contrasena"] ?? "");
 
     if (empty($email) || empty($contrasena)) {
@@ -27,6 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 header("Location: /escape-room/publico/landing.php");
                 exit;
             } else {
+                // Mensaje genérico intencionado: no revelar si el email existe
                 $errores[] = "Correo o contraseña incorrectos.";
             }
 
@@ -58,6 +71,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php endif; ?>
 
         <form action="" method="POST" class="auth-form" novalidate>
+            <?php csrf_campo() ?>
 
             <div class="form-group">
                 <label for="email">Correo electrónico</label>
@@ -87,7 +101,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <button type="submit" class="btn btn-primary auth-btn">
                 Iniciar sesión
             </button>
-
         </form>
 
         <p class="auth-enlace">

@@ -4,6 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . "/../base_datos.php";
+require_once __DIR__ . "/../seguridad.php";
+
+// Aplicar cabeceras de seguridad en todas las páginas
+aplicar_cabeceras_seguridad();
 
 $usuarioLogueado = null;
 
@@ -64,20 +68,17 @@ if (isset($_SESSION["usuario"])) {
 
     if (!trigger || !menu) return;
 
-    // Abrir/cerrar con click
     trigger.addEventListener("click", function (e) {
         e.stopPropagation();
         menu.classList.toggle("abierto");
     });
 
-    // Cerrar al hacer click fuera
     document.addEventListener("click", function (e) {
         if (!menu.contains(e.target)) {
             menu.classList.remove("abierto");
         }
     });
 
-    // Cerrar al pulsar Escape
     document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") menu.classList.remove("abierto");
     });

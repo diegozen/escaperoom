@@ -1,28 +1,41 @@
 <?php
 require "../plantillas/cabecera.php";
 
-if (!isset($_SESSION["usuario"])) {
-    header("Location: /escape-room/aplicacion/autenticacion/iniciar_sesion.php");
-    exit;
-}
+requerir_login();
+$id_usuario = (int)$_SESSION["usuario"];
+requerir_suscripcion($conexion, $id_usuario);
 
-$id_usuario   = $_SESSION["usuario"];
 $challenge_id = $_GET["reto"] ?? null;
 $errores      = [];
 $exito        = false;
 $resultado    = null;
 
 $retos_validos = ["reto1", "reto2", "reto3", "reto4", "reto5"];
-if (!$challenge_id || !in_array($challenge_id, $retos_validos)) {
+if (!$challenge_id || !in_array($challenge_id, $retos_validos, true)) {
     header("Location: /escape-room/aplicacion/laboratorio/index.php?error=Reto+no+válido");
     exit;
 }
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    // CSRF
+    csrf_validar();
+
+    // Rate limiting anti-bruteforce: 20 intentos por usuario+reto en 10 minutos
+    rate_limit_o_abortar(
+        "flag_{$id_usuario}_{$challenge_id}",
+        20,
+        600,
+        "/escape-room/aplicacion/laboratorio/index.php",
+        'Demasiados intentos de validación. Espera 10 minutos.'
+    );
+
     $flag = trim($_POST["flag"] ?? "");
 
     if (empty($flag)) {
         $errores[] = "Introduce la flag antes de validar.";
+    } elseif (strlen($flag) > 200) {
+        $errores[] = "Flag demasiado larga.";
     }
 
     if (empty($errores)) {
@@ -51,13 +64,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $resultado = json_decode($respuesta, true);
 
-        if ($resultado && $resultado["success"] === true) {
+        if ($resultado && ($resultado["success"] ?? false) === true) {
             $exito = true;
 
-            // El orquestador ya marca la sesión como 'completed' y guarda elapsed_secs.
-            // Aquí solo sincronizamos por si hubiera desfase (doble seguridad).
+            // Sincronización de seguridad con la BD local
             try {
-                $elapsed = $resultado["elapsed_seconds"] ?? null;
+                $elapsed = isset($resultado["elapsed_seconds"])
+                    ? (int)$resultado["elapsed_seconds"]
+                    : null;
                 $sql  = "UPDATE sesiones_reto
                          SET status = 'completed', finished_at = NOW(), elapsed_secs = :elapsed
                          WHERE id_usuario = :id AND challenge_id = :challenge AND status = 'running'";
@@ -70,6 +84,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             } catch (PDOException $e) {
                 error_log("Error sincronizando sesión completada: " . $e->getMessage());
             }
+        } elseif ($resultado && ($resultado["partial"] ?? false) === true) {
+            // Flag parcial del reto5
+            $exito = false;
+            $errores[] = $resultado["message"] ?? "Flag parcial correcta. ¡Seguid escalando!";
         } else {
             $errores[] = $resultado["message"] ?? "Flag incorrecta. Sigue intentándolo.";
         }
@@ -129,6 +147,7 @@ $nombres_retos = [
             <?php endif; ?>
 
             <form action="" method="POST" class="auth-form">
+                <?php csrf_campo() ?>
                 <div class="form-group">
                     <label for="flag">Flag</label>
                     <input
@@ -138,6 +157,7 @@ $nombres_retos = [
                         placeholder="FLAG{...}"
                         autocomplete="off"
                         spellcheck="false"
+                        maxlength="200"
                         required
                     >
                 </div>
@@ -147,7 +167,6 @@ $nombres_retos = [
             </form>
 
         <?php endif; ?>
-
     </div>
 </div>
 

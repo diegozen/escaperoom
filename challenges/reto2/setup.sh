@@ -2,7 +2,7 @@
 set -e
 
 # ── Usuarios ──────────────────────────────────────────────────
-useradd -m -s /bin/bash "$SSH_USER"
+id "$SSH_USER" &>/dev/null || useradd -m -s /bin/bash "$SSH_USER"
 echo "$SSH_USER:$SSH_PASS" | chpasswd
 
 # ── Flag ──────────────────────────────────────────────────────
@@ -37,5 +37,6 @@ iptables -A OUTPUT -d 172.100.0.0/16                                   -j ACCEPT
 echo "[OK] iptables aplicadas"
 
 # ── SSH ───────────────────────────────────────────────────────
+mkdir -p /var/run/sshd
 service ssh start
 tail -f /dev/null

@@ -2,11 +2,11 @@
 set -e
 
 # ── Usuarios ──────────────────────────────────────────────────
-useradd -m -s /bin/bash "$SSH_USER"
+id "$SSH_USER" &>/dev/null || useradd -m -s /bin/bash "$SSH_USER"
 echo "$SSH_USER:$SSH_PASS" | chpasswd
 
 # Contraseña FTP: saneada para evitar rotura en variables/heredoc
-# Se recibe de Docker como variable de entorno; si viene vacía, falla
+# Se recibe de Docker como variable de entorno; si viene vacía, falla ruidosamente
 if [ -z "$FTP_PASS" ]; then
     echo "[ERROR] FTP_PASS no está definida" >&2
     exit 1
@@ -69,6 +69,7 @@ iptables -A OUTPUT -d 172.100.0.0/16 -j ACCEPT
 echo "[OK] iptables aplicadas — contenedor aislado"
 
 # ── SSH ───────────────────────────────────────────────────────
+mkdir -p /var/run/sshd
 service ssh start
 
 tail -f /dev/null

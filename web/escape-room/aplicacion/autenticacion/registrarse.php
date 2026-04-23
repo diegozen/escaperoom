@@ -6,13 +6,24 @@ $datos   = [];
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
+    // CSRF
+    csrf_validar();
+
+    // Rate limiting: 5 registros por IP en 10 minutos
+    rate_limit_o_abortar(
+        'registro',
+        5,
+        600,
+        '/escape-room/aplicacion/autenticacion/registrarse.php',
+        'Demasiados intentos de registro. Espera 10 minutos.'
+    );
+
     $datos["nombre"]    = trim($_POST["nombre"]     ?? "");
     $datos["apellidos"] = trim($_POST["apellidos"]  ?? "");
     $datos["email"]     = trim($_POST["email"]      ?? "");
     $contrasena         = trim($_POST["contrasena"] ?? "");
     $contrasena2        = trim($_POST["contrasena2"] ?? "");
 
-    // Validaciones
     if (empty($datos["nombre"]) || empty($datos["apellidos"]) ||
         empty($datos["email"])  || empty($contrasena) || empty($contrasena2)) {
         $errores[] = "Debes rellenar todos los campos.";
@@ -32,8 +43,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (empty($errores)) {
         try {
-            // Comprobar si el email ya existe
-            $stmt = $conexion->prepare("SELECT id_usuario FROM usuarios WHERE email = :email LIMIT 1");
+            $stmt = $conexion->prepare(
+                "SELECT id_usuario FROM usuarios WHERE email = :email LIMIT 1"
+            );
             $stmt->execute([":email" => $datos["email"]]);
 
             if ($stmt->fetch()) {
@@ -43,9 +55,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                          VALUES (:nombre, :apellidos, :email, :contrasena)";
                 $stmt = $conexion->prepare($sql);
                 $stmt->execute([
-                    ":nombre"    => $datos["nombre"],
-                    ":apellidos" => $datos["apellidos"],
-                    ":email"     => $datos["email"],
+                    ":nombre"     => $datos["nombre"],
+                    ":apellidos"  => $datos["apellidos"],
+                    ":email"      => $datos["email"],
                     ":contrasena" => password_hash($contrasena, PASSWORD_DEFAULT),
                 ]);
 
@@ -84,6 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         <?php endif; ?>
 
         <form action="" method="POST" class="auth-form" novalidate>
+            <?php csrf_campo() ?>
 
             <div class="form-fila">
                 <div class="form-group">
@@ -153,7 +166,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             <button type="submit" class="btn btn-primary auth-btn">
                 Crear cuenta
             </button>
-
         </form>
 
         <p class="auth-enlace">

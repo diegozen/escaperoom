@@ -1,16 +1,22 @@
 <?php
 require "../plantillas/cabecera.php";
 
-if (!isset($_SESSION["usuario"])) {
-    header("Location: /escape-room/aplicacion/autenticacion/iniciar_sesion.php");
+requerir_login();
+$id_usuario = (int)$_SESSION["usuario"];
+requerir_suscripcion($conexion, $id_usuario);
+
+// Abortar solo se puede hacer por POST con token CSRF válido
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
+    header("Location: /escape-room/aplicacion/laboratorio/index.php");
     exit;
 }
 
-$id_usuario   = $_SESSION["usuario"];
-$challenge_id = $_GET["reto"] ?? null;
+csrf_validar();
 
+$challenge_id  = $_POST["reto"] ?? null;
 $retos_validos = ["reto1", "reto2", "reto3", "reto4", "reto5"];
-if (!$challenge_id || !in_array($challenge_id, $retos_validos)) {
+
+if (!$challenge_id || !in_array($challenge_id, $retos_validos, true)) {
     header("Location: /escape-room/aplicacion/laboratorio/index.php?error=Reto+no+válido");
     exit;
 }
@@ -35,7 +41,7 @@ curl_setopt_array($ch, [
 curl_exec($ch);
 curl_close($ch);
 
-// Actualizar estado en BD independientemente de la respuesta del orquestador
+// Sincronización local por si el orquestador falla
 try {
     $sql  = "UPDATE sesiones_reto
              SET status = 'aborted', finished_at = NOW()
