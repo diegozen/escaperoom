@@ -8,14 +8,24 @@ RUN apt-get update && apt-get install -y \
     netcat-openbsd \
     vsftpd \
     sudo \
+    iptables \
     && rm -rf /var/lib/apt/lists/*
 
+# SSH base
 RUN mkdir /var/run/sshd
-RUN echo 'PermitRootLogin no' >> /etc/ssh/sshd_config
+RUN echo 'PermitRootLogin no'        >> /etc/ssh/sshd_config
 RUN echo 'PasswordAuthentication yes' >> /etc/ssh/sshd_config
+
+# Crear usuario ftp del sistema para vsftpd (si no existe ya)
+RUN id -u ftp &>/dev/null || useradd -r -d /var/ftp -s /usr/sbin/nologin ftp
+
+# Directorio raíz FTP anónimo (el contenido lo crea setup_objetivo.sh)
+RUN mkdir -p /var/ftp/pub && chown -R ftp:ftp /var/ftp
 
 COPY setup_objetivo.sh /setup.sh
 RUN chmod +x /setup.sh
 
-EXPOSE 22 21 80
+# SSH, FTP, HTTP
+EXPOSE 22 21 80 40000-40010
+
 CMD ["/setup.sh"]

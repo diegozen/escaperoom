@@ -150,8 +150,12 @@ def start_challenge(req: StartRequest, db: DBSession = Depends(get_db)):
 
     timeout = CHALLENGES[req.challenge_id]["timeout_secs"]
 
+    # db_factory: callable que abre una sesión nueva (timer corre en hilo separado)
+    # Usamos SessionLocal directamente para evitar el generador get_db()
+    from database import SessionLocal
+
     def db_factory():
-        return next(get_db())
+        return SessionLocal()
 
     start_timer(session.id_sesion, result["container_id"], timeout, db_factory)
 

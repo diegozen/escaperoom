@@ -1,15 +1,26 @@
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
+import os
+import sys
+from sqlalchemy import create_engine, Column, Integer, String, DateTime, text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from datetime import datetime
 
-# ── Configuración MySQL ───────────────────────────────────────
-# Mismos datos que base_datos.php
-DB_HOST     = "localhost"
-DB_PORT     = 3306
-DB_NAME     = "escape_db"
-DB_USER     = "escape_user"
-DB_PASSWORD = "escape_pass"
+# ── Credenciales desde variables de entorno ───────────────────
+# Nunca hardcodear credenciales en el código fuente.
+# El proceso debe fallar al arrancar si faltan variables críticas.
+
+def _require_env(key: str) -> str:
+    value = os.environ.get(key)
+    if not value:
+        print(f"[ERROR] Variable de entorno '{key}' no definida", file=sys.stderr)
+        sys.exit(1)
+    return value
+
+DB_HOST     = os.environ.get("DB_HOST",     "localhost")
+DB_PORT     = os.environ.get("DB_PORT",     "3306")
+DB_NAME     = _require_env("DB_NAME")
+DB_USER     = _require_env("DB_USER")
+DB_PASSWORD = _require_env("DB_PASSWORD")
 
 DATABASE_URL = (
     f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
@@ -18,14 +29,18 @@ DATABASE_URL = (
 
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True,   # reconecta si la conexión se cae
-    pool_recycle=3600,    # recicla conexiones cada hora
+    pool_pre_ping  = True,    # reconecta automáticamente si la conexión se cae
+    pool_recycle   = 3600,    # recicla conexiones cada hora
+    pool_size      = 5,       # conexiones permanentes en el pool
+    max_overflow   = 10,      # conexiones extra permitidas bajo carga
+    echo           = False,   # True solo para debug SQL
 )
 
-SessionLocal = sessionmaker(bind=engine)
-Base = declarative_base()
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
+Base         = declarative_base()
 
-# ── Modelo — espeja la tabla sesiones_reto del schema.sql ─────
+
+# ── Modelo — espeja sesiones_reto del schema.sql ──────────────
 class Session(Base):
     __tablename__ = "sesiones_reto"
 
@@ -44,15 +59,33 @@ class Session(Base):
     elapsed_secs = Column(Integer,     nullable=True)
     flag_used    = Column(String(255), nullable=True)
 
+
+# ── Inicialización ────────────────────────────────────────────
 def init_db():
-    # No crea tablas — ya existen por schema.sql
-    # Solo verifica que la conexión funciona
-    with engine.connect() as conn:
-        pass
+    """
+    Verifica que la conexión con MySQL funciona al arrancar.
+    Si falla, termina el proceso para que el supervisor lo reinicie
+    en lugar de dejar FastAPI corriendo sin BD.
+    """
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+        print("[DB] Conexión MySQL OK")
+    except Exception as e:
+        print(f"[ERROR] No se pudo conectar a MySQL: {e}", file=sys.stderr)
+        sys.exit(1)
+
 
 def get_db():
+    """
+    Generador de sesiones para inyección de dependencias FastAPI.
+    Garantiza que la sesión se cierra siempre, incluso si hay excepción.
+    """
     db = SessionLocal()
     try:
         yield db
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()
