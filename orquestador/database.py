@@ -39,7 +39,6 @@ engine = create_engine(
 SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 Base         = declarative_base()
 
-
 # ── Modelo — espeja sesiones_reto del schema.sql ──────────────
 class Session(Base):
     __tablename__ = "sesiones_reto"
@@ -59,6 +58,19 @@ class Session(Base):
     elapsed_secs = Column(Integer,     nullable=True)
     flag_used    = Column(String(255), nullable=True)
 
+class SessionReto5(Base):
+    __tablename__ = "sesiones_reto5"
+
+    id_sesion    = Column(Integer,     primary_key=True, autoincrement=True)
+    jugador      = Column(String(20),  nullable=False)
+    ssh_port     = Column(Integer,     nullable=False)
+    ssh_user     = Column(String(100), nullable=False)
+    ssh_pass     = Column(String(100), nullable=False)
+    status       = Column(String(20),  nullable=False, default="running")
+    started_at   = Column(DateTime,    nullable=False, default=datetime.utcnow)
+    finished_at  = Column(DateTime,    nullable=True)
+    elapsed_secs = Column(Integer,     nullable=True)
+    flag_used    = Column(String(255), nullable=True)
 
 # ── Inicialización ────────────────────────────────────────────
 def init_db():

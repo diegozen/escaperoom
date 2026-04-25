@@ -5,17 +5,20 @@ from sqlalchemy.orm import Session as DBSession
 from datetime import datetime
 import hashlib
 import re
+import os
 
-from database import get_db, init_db, Session
+from database import get_db, init_db, Session, SessionReto5
 from manager  import spawn_container, stop_container, CHALLENGES, spawn_reto5, stop_reto5
 from timer    import start_timer, cancel_timer
 
 app = FastAPI(title="Escape Room API", docs_url=None, redoc_url=None)
 
 # CORS: solo el origen de la web PHP
+ALLOWED_ORIGINS = os.environ.get("ALLOWED_ORIGINS", "http://localhost,http://127.0.0.1").split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost", "http://127.0.0.1"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_methods=["POST", "GET"],
     allow_headers=["Content-Type"],
 )
@@ -138,6 +141,7 @@ def start_challenge(req: StartRequest, db: DBSession = Depends(get_db)):
         id_usuario   = req.user_id,
         challenge_id = req.challenge_id,
         container_id = result["container_id"],
+        ssh_host     = result["ssh_host"],
         ssh_port     = result["ssh_port"],
         ssh_user     = result["ssh_user"],
         ssh_pass     = result["ssh_pass"],
@@ -271,18 +275,14 @@ def start_reto5(db: DBSession = Depends(get_db)):
         raise HTTPException(500, f"Error al lanzar reto5: {e}")
 
     for jugador, creds in result.items():
-        session = Session(
-            id_usuario   = jugador,
-            challenge_id = "reto5",
-            container_id = f"escape_reto5_{jugador}",
-            ssh_port     = creds["ssh_port"],
-            ssh_user     = creds["ssh_user"],
-            ssh_pass     = creds["ssh_pass"],
-            status       = "running",
-            started_at   = datetime.utcnow(),
+        session = SessionReto5(
+            jugador  = jugador,
+            ssh_port = creds["ssh_port"],
+            ssh_user = creds["ssh_user"],
+            ssh_pass = creds["ssh_pass"],
+            status   = "running",
         )
         db.add(session)
-
     db.commit()
 
     timeout = CHALLENGES["reto5"]["timeout_secs"]
@@ -295,9 +295,8 @@ def start_reto5(db: DBSession = Depends(get_db)):
 
 @app.post("/challenge/reto5/abort")
 def abort_reto5(db: DBSession = Depends(get_db)):
-    sessions = db.query(Session).filter(
-        Session.challenge_id == "reto5",
-        Session.status       == "running",
+    sessions = db.query(SessionReto5).filter(
+        SessionReto5.status == "running",
     ).all()
     if not sessions:
         raise HTTPException(404, "No hay sesión grupal activa")
@@ -315,9 +314,8 @@ def abort_reto5(db: DBSession = Depends(get_db)):
 
 @app.post("/challenge/reto5/validate")
 def validate_reto5(req: ValidateRequest, db: DBSession = Depends(get_db)):
-    sessions = db.query(Session).filter(
-        Session.challenge_id == "reto5",
-        Session.status       == "running",
+    sessions = db.query(SessionReto5).filter(
+        SessionReto5.status == "running",
     ).all()
     if not sessions:
         raise HTTPException(404, "No hay sesión grupal activa")
@@ -342,9 +340,11 @@ def validate_reto5(req: ValidateRequest, db: DBSession = Depends(get_db)):
         raise HTTPException(500, f"Error deteniendo reto5: {e}")
 
     for s in sessions:
-        s.flag_used = req.flag
-        _finish_session(s, "completed", db)
-
+        s.status       = "completed"   # o "aborted"
+        s.finished_at  = datetime.utcnow()
+        s.elapsed_secs = int((s.finished_at - s.started_at).total_seconds())
+    db.commit()
+    
     mins = sessions[0].elapsed_secs // 60
     secs = sessions[0].elapsed_secs % 60
     return {

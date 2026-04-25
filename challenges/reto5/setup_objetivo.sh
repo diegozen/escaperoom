@@ -40,12 +40,15 @@ no_anon_password=YES
 pasv_enable=YES
 pasv_min_port=40000
 pasv_max_port=40010
+pasv_address=172.100.9.10
 VSFTPD
 
 mkdir -p /var/ftp/pub
 echo "Credenciales de acceso SSH: serviceftp:ftp1234" > /var/ftp/pub/credentials.txt
 chmod 644 /var/ftp/pub/credentials.txt
 chown -R ftp:ftp /var/ftp 2>/dev/null || chown -R nobody:nogroup /var/ftp
+chmod 555 /var/ftp
+chmod 555 /var/ftp/pub
 
 # ── Servicio web con pista (puerto 80) ────────────────────────
 mkdir -p /var/www/html
@@ -85,6 +88,7 @@ echo "[OK] iptables objetivo aplicadas"
 
 # ── Arrancar servicios ────────────────────────────────────────
 mkdir -p /var/run/sshd
+chmod a-w /var/ftp
 service vsftpd start
 service ssh start
 

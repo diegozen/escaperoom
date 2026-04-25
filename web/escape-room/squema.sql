@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS ranking (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ── Tabla: sesiones_reto ─────────────────────────────────────
--- Conecta la web con el orquestador FastAPI
+-- Retos individuales (reto1 a reto4)
 CREATE TABLE IF NOT EXISTS sesiones_reto (
     id_sesion    INT          NOT NULL AUTO_INCREMENT,
     id_usuario   INT          NOT NULL,
@@ -78,6 +78,22 @@ CREATE TABLE IF NOT EXISTS sesiones_reto (
         REFERENCES usuarios (id_usuario) ON DELETE CASCADE,
     CONSTRAINT fk_sesiones_partida FOREIGN KEY (id_partida)
         REFERENCES partidas (id_partida) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ── Tabla: sesiones_reto5 ────────────────────────────────────
+-- Reto grupal — estructura independiente, sin FK a usuarios
+CREATE TABLE IF NOT EXISTS sesiones_reto5 (
+    id_sesion    INT          NOT NULL AUTO_INCREMENT,
+    jugador      VARCHAR(20)  NOT NULL,
+    ssh_port     INT          NOT NULL,
+    ssh_user     VARCHAR(100) NOT NULL,
+    ssh_pass     VARCHAR(100) NOT NULL,
+    status       VARCHAR(20)  NOT NULL DEFAULT 'running',
+    started_at   DATETIME     NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    finished_at  DATETIME              NULL,
+    elapsed_secs INT                   NULL,
+    flag_used    VARCHAR(255)          NULL,
+    PRIMARY KEY (id_sesion)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 SET FOREIGN_KEY_CHECKS = 1;
