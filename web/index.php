@@ -1,0 +1,1 @@
+<?php header("Location: /escape-room/publico/landing.php"); exit;

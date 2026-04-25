@@ -106,7 +106,7 @@ def startup():
 
 def _compute_flag(ssh_user: str, flag_seed: str) -> str:
     """Calcula la flag esperada igual que el setup.sh de cada reto."""
-    flag_input = f"{ssh_user}{flag_seed}\n"
+    flag_input = f"{ssh_user}{flag_seed}"
     return f"FLAG{{{hashlib.md5(flag_input.encode()).hexdigest()[:12]}}}"
 
 

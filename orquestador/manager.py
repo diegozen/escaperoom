@@ -166,7 +166,7 @@ def spawn_container(user_id: str, challenge_id: str) -> dict:
         "ssh_user":     ssh_user,
         "ssh_pass":     ssh_pass,
         "ssh_port":     port,
-        "ssh_port":     ssh_host,
+        "ssh_host":     ssh_host,
     }
     # Devolver ftp_pass solo para reto4 (se almacena en sesión para mostrar
     # al jugador si necesita soporte, pero NO se expone en la pantalla normal)
